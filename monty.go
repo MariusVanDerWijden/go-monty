@@ -13,7 +13,6 @@ func monty(x, y, montyPrime, modulus []uint32) []uint32 {
 	var temp uint64
 	for i := 0; i < N; i++ {
 		var carry uint32
-		carry = 0
 		for j := 0; j < N; j++ {
 			temp = uint64(t[j])
 			temp += uint64(x[i]) * uint64(y[j])
