@@ -38,9 +38,42 @@ func monty(x, y, montyPrime, modulus []uint32) []uint32 {
 		t[N-1] = uint32(temp)
 		t[N] = uint32(temp >> 32)
 	}
-	var result []uint32
-	for i := 0; i < N; i++ {
-		result = append(result, t[i])
+	return normalize(t[:N], modulus)
+}
+
+func normalize(t, modulus []uint32) []uint32 {
+	if less(modulus, t) {
+		t = sub(t, modulus)
 	}
-	return result
+	return t
+}
+
+// less checks if a is strictly less than b
+func less(a, b []uint32) bool {
+	for k := len(a) - 1; k > 0; k-- {
+		if a[k] < b[k] {
+			return true
+		} else if a[k] > b[k] {
+			return false
+		}
+	}
+	return false
+}
+
+// sub substracts b from a
+func sub(a, b []uint32) []uint32 {
+	borrow := false
+	for i := 0; i < len(a); i++ {
+		tmp := uint64(a[i])
+		underflow := (tmp == 0) && (b[i] > 0 || borrow)
+		if borrow {
+			tmp--
+		}
+		borrow = underflow || tmp < uint64(b[i])
+		if borrow {
+			tmp += 1 << 33
+		}
+		a[i] = uint32(tmp - uint64(b[i]))
+	}
+	return a
 }
