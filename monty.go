@@ -1,13 +1,42 @@
 package monty
 
-import "os"
+import (
+	"math/big"
+	"unsafe"
+)
 
 const SIZE int = 8
 
-func monty(x, y, montyPrime, modulus []uint32) []uint32 {
+func toBig(x []uint32) *big.Int {
+	a := new(big.Int)
+	var bytes []byte
+	for digit := range x {
+		b := (*[4]byte)(unsafe.Pointer(&digit))[:]
+		bytes = append(bytes, b...)
+	}
+	a.SetBytes(bytes)
+	return a
+}
+
+func ToMonty(x []uint32) []uint32 {
+	r := []uint32{4294967294, 1, 215042, 1485092858, 3971764213, 2576109551, 2898593135, 405057881}
+	for i := range r {
+		x[i] = x[i] + r[i]
+	}
+	return x
+}
+
+func FromMonty(x []uint32) []uint32 {
+	r := []uint32{4294967294, 1, 215042, 1485092858, 3971764213, 2576109551, 2898593135, 405057881}
+	for i := range r {
+		x[i] = x[i] - r[i]
+	}
+	return x
+}
+func Monty(x, y, montyPrime, modulus []uint32) []uint32 {
 	var N = len(x)
 	if SIZE != N {
-		os.Exit(1)
+		panic("Invalid size")
 	}
 	var t [SIZE + 2]uint32
 	var temp uint64
@@ -38,14 +67,14 @@ func monty(x, y, montyPrime, modulus []uint32) []uint32 {
 		t[N-1] = uint32(temp)
 		t[N] = uint32(temp >> 32)
 	}
-	return normalize(t[:N], modulus)
+	return normalize(t[:], modulus)
 }
 
 func normalize(t, modulus []uint32) []uint32 {
 	if less(modulus, t) {
 		t = sub(t, modulus)
 	}
-	return t
+	return t[:len(modulus)]
 }
 
 // less checks if a is strictly less than b
